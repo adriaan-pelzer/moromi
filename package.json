@@ -1,6 +1,6 @@
 {
   "name": "moromi",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A testing framework without the funny stuff",
   "main": "index.js",
   "bin": {
