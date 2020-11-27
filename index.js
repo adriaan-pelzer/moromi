@@ -26,37 +26,39 @@ const runTest = (ctx, {
 }) => Promise.resolve(`- ${name}`)
   .then(title => { if (attempt === 0) { process.stdout.write(title); } })
   .then(() => new Promise(resolve => setTimeout(() => resolve(null), 1000 * attempt)))
-  .then(() => new Date().valueOf())
-  .then(start => (typeof type === 'function' ? type :  require(`./modules/${type}.js`))(getAttr(ctx, params))
-    .then(actual => {
-      const end = new Date().valueOf();
-      const exp = getAttr(ctx, expected);
-      if (DEBUG) {
-        process.stdout.write("\n");
-        console.log('request');
-        console.log(JSON.stringify(getAttr(ctx, params), null, 2));
-        console.log('response');
-        console.log(JSON.stringify(actual, null, 2));
-      }
-      Object.keys(exp).forEach(key => {
-        if (exp[key] instanceof RegExp) {
-          assert.match(
-            getPathValue(actual)(key),
-            exp[key],
-            `"${key}" does not match "${exp[key]}", it is set to "${getPathValue(actual)(key)}"`
-          );
-        } else {
-          assert.strictEqual(
-            getPathValue(actual)(key),
-            exp[key],
-            `"${key}" is not "${exp[key]}", but "${getPathValue(actual)(key)}"`
-          );
+  .then(() => typeof type === 'function' ? type : require(`./modules/${type}.js`))
+  .then(testModule => {
+    const start = new Date().valueOf();
+    return testModule(getAttr(ctx, params))
+      .then(actual => {
+        const end = new Date().valueOf();
+        const exp = getAttr(ctx, expected);
+        if (DEBUG) {
+          process.stdout.write("\n");
+          console.log('request');
+          console.log(JSON.stringify(getAttr(ctx, params), null, 2));
+          console.log('response');
+          console.log(JSON.stringify(actual, null, 2));
         }
-      });
+        Object.keys(exp).forEach(key => {
+          if (exp[key] instanceof RegExp) {
+            assert.match(
+              getPathValue(actual)(key),
+              exp[key],
+              `"${key}" does not match "${exp[key]}", it is set to "${getPathValue(actual)(key)}"`
+            );
+          } else {
+            assert.strictEqual(
+              getPathValue(actual)(key),
+              exp[key],
+              `"${key}" is not "${exp[key]}", but "${getPathValue(actual)(key)}"`
+            );
+          }
+        });
 
-      return { response: actual, time: end - start };
-    })
-  )
+        return { response: actual, time: end - start };
+      });
+  })
   .then(({ response, time }) => {
     process.stdout.write(`: ${time}ms`);
     if (TERM === 'xterm-256color') {
