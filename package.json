@@ -1,0 +1,16 @@
+{
+  "name": "moromi",
+  "version": "0.0.1",
+  "description": "A testing framework without the funny stuff",
+  "main": "index.js",
+  "bin": {
+    "moromi": "./index.js"
+  },
+  "repository": "git@github.com:adriaan-pelzer/moromi.git",
+  "author": "Adriaan Pelzer <adriaan.pelzer@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.799.0",
+    "pkce-light": "^0.0.1"
+  }
+}
