@@ -24,12 +24,10 @@ const runTest = (ctx, {
   params = {}, expected = {},
   addToCtx = () => ({})
 }) => Promise.resolve(`- ${name}`)
-  .then(title => {
-    if (attempt === 0) { process.stdout.write(title); }
-  })
+  .then(title => { if (attempt === 0) { process.stdout.write(title); } })
   .then(() => new Promise(resolve => setTimeout(() => resolve(null), 1000 * attempt)))
   .then(() => new Date().valueOf())
-  .then(start => require(`./modules/${type}.js`)(getAttr(ctx, params))
+  .then(start => (typeof type === 'function' ? type :  require(`./modules/${type}.js`))(getAttr(ctx, params))
     .then(actual => {
       const end = new Date().valueOf();
       const exp = getAttr(ctx, expected);
@@ -113,7 +111,7 @@ return new Promise((resolve, reject) => fs.readdir(
   fullFolder,
   (error, files) => error ? reject(error) : resolve(files)
 ))
-  .then(files => files.filter(file => /^.*\.js/.test(file)))
+  .then(files => files.filter(file => /^.*\.js$/.test(file)))
   .then(testFiles => testFiles.map(testFile => require(`${fullFolder}/${testFile}`)))
   .then(runSuites)
   .then(result => exit(result))
