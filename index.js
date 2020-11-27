@@ -107,6 +107,8 @@ const runSuites = suites => suites.filter(
 
 const fullFolder = path.resolve(folder);
 
+const log = message => { console.log(message); return message; };
+
 return new Promise((resolve, reject) => fs.readdir(
   fullFolder,
   (error, files) => error ? reject(error) : resolve(files)
@@ -116,9 +118,6 @@ return new Promise((resolve, reject) => fs.readdir(
   .then(runSuites)
   .then(result => exit(result))
   .catch(error => {
-    if (DEBUG) {
-      console.log('oob error:');
-      console.log(error.message || error);
-    }
+    console.error(error);
     exit(1);
   });
