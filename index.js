@@ -111,6 +111,8 @@ const fullFolder = path.resolve(folder);
 
 const log = message => { console.log(message); return message; };
 
+process.env.MOCK = 1;
+
 return new Promise((resolve, reject) => fs.readdir(
   fullFolder,
   (error, files) => error ? reject(error) : resolve(files)
