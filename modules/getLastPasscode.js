@@ -18,7 +18,13 @@ const lastObject = (Prefix, ContinuationToken, newest) => s3.listObjectsV2({
     : newestItem(newest ? [newest, ...Contents] : Contents)
   );
 
-const getLastPasscode = ({ after = new Date(), mailbox = 'tester' }) => lastObject(mailbox)
+const getLastPasscode = ({ after = new Date(), mailbox = 'tester' }) => new Promise((resolve, reject) => {
+  if (new Date() - after > 60000) {
+    return reject(new Error('timeout getting passcode'));
+  }
+  return resolve(null);
+})
+  .then(() => lastObject(mailbox))
   .then(({ LastModified, Key }) => after > LastModified
     ? getLastPasscode({ after, mailbox })
     : s3.getObject({ Bucket, Key }).promise()
@@ -27,7 +33,11 @@ const getLastPasscode = ({ after = new Date(), mailbox = 'tester' }) => lastObje
     if (!response || !response.Body) {
       return getLastPasscode({ after, mailbox });
     }
-    return { passcode: response.Body.toString('utf8').match(/Your passcode is: (\d{6})/)[1] };
+    const match = response.Body.toString('utf8').match(/Your passcode is: (\d{6})/);
+    if (!match || !match.length || match.length < 2) {
+      return getLastPasscode({ after, mailbox });
+    }
+    return { passcode: match[1] };
   });
 
 module.exports = getLastPasscode;
