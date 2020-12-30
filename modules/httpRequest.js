@@ -1,7 +1,7 @@
 const https = require('https');
 
 const buildOptions = ({
-  hostname = 'api.blackstack.co.uk',
+  hostname = 'blxtk.com',
   path, method = 'GET', ...headers
 }) => ({ hostname, port: 443, path, method, headers });
 
