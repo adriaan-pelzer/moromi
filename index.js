@@ -54,6 +54,8 @@ const runTest = (ctx, {
               );
             }
           });
+        } else if (exp instanceof Function) {
+          exp(assert)(actual);
         } else {
           assert.strictEqual(
             actual.toString(), exp.toString(),
