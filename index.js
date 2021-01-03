@@ -40,21 +40,26 @@ const runTest = (ctx, {
           console.log('response');
           console.log(JSON.stringify(actual, null, 2));
         }
-        Object.keys(exp).forEach(key => {
-          if (exp[key] instanceof RegExp) {
-            assert.match(
-              getPathValue(actual)(key),
-              exp[key],
-              `"${key}" does not match "${exp[key]}", it is set to "${getPathValue(actual)(key)}"`
-            );
-          } else {
-            assert.strictEqual(
-              getPathValue(actual)(key),
-              exp[key],
-              `"${key}" is not "${exp[key]}", but "${getPathValue(actual)(key)}"`
-            );
-          }
-        });
+        if (exp instanceof Object && !(exp instanceof Array)) {
+          Object.keys(exp).forEach(key => {
+            if (exp[key] instanceof RegExp) {
+              assert.match(
+                getPathValue(actual)(key), exp[key],
+                `"${key}" does not match "${exp[key]}", it is set to "${getPathValue(actual)(key)}"`
+              );
+            } else {
+              assert.strictEqual(
+                getPathValue(actual)(key), exp[key],
+                `"${key}" is not "${exp[key]}", but "${getPathValue(actual)(key)}"`
+              );
+            }
+          });
+        } else {
+          assert.strictEqual(
+            actual.toString(), exp.toString(),
+            `whole object match: "${actual.toString()}" is not "${exp.toString()}"`
+          );
+        }
 
         return { response: actual, time: end - start };
       });
